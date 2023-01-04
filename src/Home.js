@@ -7,6 +7,7 @@ import {nanoid} from "nanoid";
 import { db } from './firebase-config';
 import Pair from './components/Pair';
 import { getFirestore, collection, getDocs, doc, getDoc, firestore, updateDoc } from 'firebase/firestore';
+import { getAuth, getIdToken, onAuthStateChanged } from 'firebase/auth';
 
 
 const FILTER_MAP = {
@@ -30,16 +31,16 @@ function Home(props) {
         }
     })
 
-    /*const vehicleData = doc(db, "vehicles", "code1");
+    const vehicleData = doc(db, "vehicles", "code1");
     const vehicleDocSnap = getDoc(vehicleData);
 
-    getDoc(doc(db, "vehicles", "code1")).then(vehicleDocSnap => {
+    getDoc(doc(db, "vehicles", "aaaaaaaaaaaaaaaa")).then(vehicleDocSnap => {
         if (vehicleDocSnap.exists()) {
           console.log("Document data:", vehicleDocSnap.data());
         } else {
           console.log("No such document!");
         }
-    })*/
+    })
 
 
     const [tasks, setTasks] = useState(props.tasks);
@@ -112,10 +113,157 @@ function Home(props) {
 
 
     const pairScooter = () => {
+
+      getAuth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
+        // Send token to your backend via HTTPS
+        console.log(idToken);
+        var url = 'https://europe-west3-coscooter-eu-staging.cloudfunctions.net/pair?apiKey=' + idToken;
         
-        console.log("pairing")
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        var raw = JSON.stringify({
+          "vehicleCode": "code1"
+        });
+
+        var requestOptions = {
+          method: 'POST',
+          headers: myHeaders,
+          body: raw,
+          redirect: 'follow'
+        };
+
+        fetch(url, requestOptions)
+          .then(response => response.text())
+          .then(result => console.log(result))
+          .catch(error => console.log('error', error));
+
+      }).catch(function(error) {
+        console.log(error);
+      });
+    
+    }
+
+    const unpairScooter = () => {
+
+      getAuth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
+        // Send token to your backend via HTTPS
+        console.log(idToken);
+        var url = 'https://europe-west3-coscooter-eu-staging.cloudfunctions.net/pair?apiKey=' + idToken;
         
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        var raw = JSON.stringify({
+          "vehicleId": "aaaaaaaaaaaaaaaa"
+        });
+
+        var requestOptions = {
+          method: 'DELETE',
+          headers: myHeaders,
+          body: raw,
+          redirect: 'follow'
+        };
+
+        fetch(url, requestOptions)
+          .then(response => response.text())
+          .then(result => console.log(result))
+          .catch(error => console.log('error', error));
+
+      }).catch(function(error) {
+        console.log(error);
+      });
+    
+    }
+  
+    const startScooter = () => {
+
+      getAuth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
+        // Send token to your backend via HTTPS
+        console.log(idToken);
+        var url = 'https://europe-west3-coscooter-eu-staging.cloudfunctions.net/send-commands?apiKey=' + idToken;
         
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        
+        var raw = JSON.stringify({
+          "command": "START",
+          "vehicleId": "aaaaaaaaaaaaaaaa"
+        });
+        
+        var requestOptions = {
+          method: 'POST',
+          headers: myHeaders,
+          body: raw,
+          redirect: 'follow'
+        };
+        
+        fetch(url, requestOptions)
+          .then(response => response.text())
+          .then(result => console.log(result))
+          .catch(error => console.log('error', error));
+
+      }).catch(function(error) {
+        console.log(error);
+      });
+    
+    }
+
+    const stopScooter = () => {
+
+      getAuth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
+        // Send token to your backend via HTTPS
+        console.log(idToken);
+        var url = 'https://europe-west3-coscooter-eu-staging.cloudfunctions.net/send-commands?apiKey=' + idToken;
+        
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        
+        var raw = JSON.stringify({
+          "command": "STOP",
+          "vehicleId": "aaaaaaaaaaaaaaaa"
+        });
+        
+        var requestOptions = {
+          method: 'POST',
+          headers: myHeaders,
+          body: raw,
+          redirect: 'follow'
+        };
+        
+        fetch(url, requestOptions)
+          .then(response => response.text())
+          .then(result => console.log(result))
+          .catch(error => console.log('error', error));
+
+      }).catch(function(error) {
+        console.log(error);
+      });
+    
+    }
+
+
+
+    const displayIdToken = () => {
+      getAuth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
+        // Send token to your backend via HTTPS
+        console.log(idToken);
+      }).catch(function(error) {
+        console.log(error);
+      });
+    }
+
+    const getUserData = () => {
+      const userData = doc(db, "users", "3ce3P4H3K1e7KarRe9fHNwdajQf1");
+      const userDocSnap = getDoc(userData);
+  
+      getDoc(doc(db, "users", "3ce3P4H3K1e7KarRe9fHNwdajQf1")).then(userDocSnap => {
+          if (userDocSnap.exists()) {
+            console.log("Document data:", userDocSnap.data());
+          } else {
+            console.log("No such document!");
+          }
+      })
     }
 
     useEffect(() => {
@@ -133,7 +281,12 @@ function Home(props) {
         <div className="todoapp stack-large">
             Home Page
 
-            <br></br><button onClick={pairScooter}>Pair</button>
+            <br /><button onClick={pairScooter}>Pair</button>
+            <br /><button onClick={unpairScooter}>Unpair</button>
+            <br /><button onClick={displayIdToken}>Get ID Token</button>
+            <br /><button onClick={getUserData}>Get User Data</button>
+            <br /><button onClick={startScooter}>Start</button>
+            <br /><button onClick={stopScooter}>Stop</button>
             <h1>TodoMatic</h1>
             <Form addTask={addTask} />
             <div className="filters btn-group stack-exception">
