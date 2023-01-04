@@ -1,19 +1,24 @@
 import { initializeApp } from "firebase/app"
-import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import "firebase/firestore";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBSKLvnQstXxGo7ZYNKkEfVloyMjhdNudA",
-    authDomain: "tuul-724d6.firebaseapp.com",
-    projectId: "tuul-724d6",
-    storageBucket: "tuul-724d6.appspot.com",
-    messagingSenderId: "816311674537",
-    appId: "1:816311674537:web:4e91b691de7d1708b62bb8",
-    measurementId: "G-JBKGTK8L2C"
+    apiKey: "AIzaSyASkpletaqUH-NHlo1avkOAijauzoDf09A", 
+    authDomain: "coscooter-eu-staging.firebaseapp.com", 
+    projectId: "coscooter-eu-staging",
+    storageBucket: "coscooter-eu-staging.appspot.com", 
+    messagingSenderId: "485561968577",
+    appId: "1:485561968577:web:1066af28a9c306f124f140",
+    measurementId: "G-27RX6KEM2F"
 };
 
-/*const app = initializeApp(firebaseConfig)
+const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 
-export {db}*/
+export {db}
 
-export const app = initializeApp(firebaseConfig);
+/*firebase.initializeApp(firebaseConfig);
+
+export default firebase.firestore();*/
+
+//export const app = initializeApp(firebaseConfig);

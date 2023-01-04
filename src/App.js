@@ -1,101 +1,65 @@
 import React, {useEffect, useState} from "react";
-import Todo from "./components/Todo";
-import FilterButton from "./components/FilterButton";
-import Form from "./components/Form";
 import Home from "./Home"
 import LoginForm from "./components/LoginForm"
-import {nanoid} from "nanoid";
 import { Routes, Route, useNavigate } from 'react-router-dom'
-import { app } from './firebase-config';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { db } from './firebase-config';
 
 
-const FILTER_MAP = {
-  All: () => true,
-  Active: (task) => !task.completed,
-  Completed: (task) => task.completed
-};
+const DATA = [
+  {id: "todo-0", name: "Eat", completed: true},
+  {id: "todo-1", name: "Sleep", completed: false},
+  {id: "todo-2", name: "Repeat", completed: false}  
+];
 
-const FILTER_NAMES = Object.keys(FILTER_MAP);
+function App() {
 
-function App(props) {
-
-  const [tasks, setTasks] = useState(props.tasks);
-  const [filter, setFilter] = useState('All');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('')
 
 
-  function addTask(name) {
-    const newTask = {id: `todo-${nanoid()}`, name, completed: false };
-    setTasks([...tasks, newTask]);
-  }
-
-  function toggleTaskCompleted(id) {
-    const updatadTasks = tasks.map((task) => {
-      if (id === task.id) {
-        return {...task, completed: !task.completed};
-      }
-      return task;
-    })
-    setTasks(updatadTasks);
-  }
-
-  function deleteTask(id) {
-    const remainingTasks = tasks.filter((task) => id !== task.id);
-    setTasks(remainingTasks);
-  }
-
-  function editTask(id, newName) {
-    const editedList = tasks.map((task) => {
-      if (id === task.id) {
-        return {...task, name: newName};
-      }
-      return task;
-    })
-    setTasks(editedList);
-  }
-  
-
-  const taskList = tasks.filter(FILTER_MAP[filter]).map((task) => (
-    <Todo 
-      id={task.id} 
-      name={task.name} 
-      completed={task.completed}
-      key={task.id} 
-      toggleTaskCompleted={toggleTaskCompleted}
-      deleteTask={deleteTask}
-      editTask={editTask}
-    />
-  ));
-
-  const filterList = FILTER_NAMES.map((name) => (
-    <FilterButton 
-      key={name} 
-      name={name}
-      isPressed={name === filter}
-      setFilter={setFilter}
-    />
-  ));
 
   const navigate = useNavigate();
 
   const handleAction = (id) => {
     const authentication = getAuth();
 
+    //login
     if (id === 1) {
       signInWithEmailAndPassword(authentication, email, password)
       .then((response) => {
-        navigate('/home')
-        sessionStorage.setItem('Auth Token', response._tokenResponse.refreshToken)
+        navigate('/')
+        sessionStorage.setItem('Auth Token', response._tokenResponse.refreshToken);
+        onAuthStateChanged(authentication, (user) => {
+          if(user) {
+            console.log("yes")
+            console.log(user.uid);  
+          }
+        })
+      })
+      .catch((error) => {
+        if (error.code === "auth/wrong-password") {
+          toast.error("Incorrect password");
+        }
+        if (error.code === "auth/user-not-found") {
+          toast.error("Incorrect email");
+        }
       })
     }
 
+    //register
     if (id === 2) {
       createUserWithEmailAndPassword(authentication, email, password)
       .then((response) => {
         sessionStorage.setItem('Auth Token', response._tokenResponse.refreshToken)
-        navigate('/home')
+        navigate('/')
+      })
+      .catch((error) => {
+        if (error.code === 'auth/email-already-in-use') {
+          toast.error('Email already in use');
+        }
       })
     }
   }
@@ -104,17 +68,25 @@ function App(props) {
     let authToken = sessionStorage.getItem('Auth Token')
 
     if (authToken) {
-      navigate('/home')
+      navigate('/')
     }
   }, [])
 
-  const tasksNoun = taskList.length !== 1 ? 'tasks' : 'task';
-  const headingText = `${taskList.length} ${tasksNoun} remaining`;
+  const authentication = getAuth();
+  onAuthStateChanged(authentication, (user) => {
+    if(user) {
+      console.log(user.uid);  
+    }
+  })
 
   return (
-      <div className="todoapp stack-large">
+      <div>
         <>
+          <ToastContainer />
           <Routes>
+            <Route path='/' element={
+              <Home tasks={DATA} />}
+            />
             <Route path='/login' element={
               <LoginForm 
                 title="Login" 
@@ -131,26 +103,9 @@ function App(props) {
                 handleAction={() => handleAction(2)}          
               />} 
             />
-            <Route path='/home' element={
-              <Home />}
-            />
           </Routes>
         </>   
-        <h1>TodoMatic</h1>
-        <Form addTask={addTask} />
-        <div className="filters btn-group stack-exception">
-          {filterList}
-        </div>
-        <h2 id="list-heading">
-          {headingText}
-        </h2>
-        <ul
-          role="list"
-          className="todo-list stack-large stack-exception"
-          aria-labelledby="list-heading"
-        >
-          {taskList}
-        </ul>
+       
       </div>
   );
 }

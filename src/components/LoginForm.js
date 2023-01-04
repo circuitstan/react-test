@@ -31,6 +31,7 @@ export default function BasicTextFields({title, setEmail, setPassword, handleAct
                     id="password" 
                     label="Enter Password" 
                     variant="outlined"
+                    type="password"
                     onChange={(e) => setPassword(e.target.value)}
                 />
             </Box>
