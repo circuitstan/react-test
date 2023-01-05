@@ -5,20 +5,12 @@ import { Routes, Route, useNavigate } from 'react-router-dom'
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { db } from './firebase-config';
 
-
-const DATA = [
-  {id: "todo-0", name: "Eat", completed: true},
-  {id: "todo-1", name: "Sleep", completed: false},
-  {id: "todo-2", name: "Repeat", completed: false}  
-];
 
 function App() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('')
-
 
 
   const navigate = useNavigate();
@@ -85,7 +77,7 @@ function App() {
           <ToastContainer />
           <Routes>
             <Route path='/' element={
-              <Home tasks={DATA} />}
+              <Home />}
             />
             <Route path='/login' element={
               <LoginForm 

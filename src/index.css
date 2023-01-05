@@ -13,7 +13,7 @@ html {
 }
 h1,
 h2 {
-  margin-bottom: 0;
+  margin-bottom: 200px;
 }
 ul {
   list-style: none;
@@ -290,3 +290,9 @@ body {
 .c-cb > input[type="checkbox"]:checked + label::after {
   opacity: 1;
 }
+
+.MuiFormControlLabel-root {
+  width: max-content;
+}
+
+
