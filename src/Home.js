@@ -4,9 +4,11 @@ import { db } from './firebase-config';
 import { getFirestore, collection, getDocs, doc, getDoc, firestore, updateDoc } from 'firebase/firestore';
 import { getAuth, getIdToken, onAuthStateChanged } from 'firebase/auth';
 import BasicButton from './components/Button';
-import OutlinedButton from './components/ButtonOutlined';
 import PairingSwitch from './components/PairingSwitch';
 import StartStopToggle from './components/StartStopToggle';
+import { Loader } from "@googlemaps/js-api-loader"
+import FolderList from './components/Info';
+
 
 function Home(props) {
 
@@ -15,6 +17,9 @@ function Home(props) {
   const [title, setTitle] = React.useState("Start");
   const [checked, setChecked] = React.useState(false);
   const [label, setLabel] = React.useState("Pair Scooter");
+  const [battery, setBattery] = React.useState("-");
+  const [range, setRange] = React.useState("-");
+  const [odometer, setOdometer] = React.useState("-");
 
   const navigate = useNavigate();
 
@@ -58,7 +63,6 @@ function Home(props) {
 
     getAuth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
       // Send token to your backend via HTTPS
-      console.log(idToken);
       var url = 'https://europe-west3-coscooter-eu-staging.cloudfunctions.net/pair?apiKey=' + idToken;
       
       var myHeaders = new Headers();
@@ -89,7 +93,6 @@ function Home(props) {
 
     getAuth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
       // Send token to your backend via HTTPS
-      console.log(idToken);
       var url = 'https://europe-west3-coscooter-eu-staging.cloudfunctions.net/pair?apiKey=' + idToken;
       
       var myHeaders = new Headers();
@@ -120,7 +123,6 @@ function Home(props) {
 
     getAuth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
       // Send token to your backend via HTTPS
-      console.log(idToken);
       var url = 'https://europe-west3-coscooter-eu-staging.cloudfunctions.net/send-commands?apiKey=' + idToken;
       
       var myHeaders = new Headers();
@@ -152,7 +154,6 @@ function Home(props) {
 
     getAuth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
       // Send token to your backend via HTTPS
-      console.log(idToken);
       var url = 'https://europe-west3-coscooter-eu-staging.cloudfunctions.net/send-commands?apiKey=' + idToken;
       
       var myHeaders = new Headers();
@@ -181,24 +182,29 @@ function Home(props) {
   }
 
   const getUserData = () => {
-    const userData = doc(db, "users", "3ce3P4H3K1e7KarRe9fHNwdajQf1");
 
-    getDoc(userData).then(docSnap => {
-        if (docSnap.exists()) {
-          console.log("Document data:", docSnap.data());
-          var vehicle = docSnap.data().activeVehicle;
-          console.log(vehicle);
-          if (vehicle === null) {
-            setDisabled(true);
-            setChecked(false);
-          } else if (vehicle !== null) {
-            setDisabled(false);
-            setChecked(true);
+    getAuth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
+      const userData = doc(db, "users", "3ce3P4H3K1e7KarRe9fHNwdajQf1");
+
+      getDoc(userData).then(docSnap => {
+          if (docSnap.exists()) {
+            console.log("Document data:", docSnap.data());
+            var vehicle = docSnap.data().activeVehicle;
+            console.log(vehicle);
+            if (vehicle === null) {
+              setDisabled(true);
+              setChecked(false);
+            } else if (vehicle !== null) {
+              setDisabled(false);
+              setChecked(true);
+            }
+          } else {
+            console.log("No such document!");
           }
-        } else {
-          console.log("No such document!");
-        }
-    })
+      })
+    }).catch(function(error) {
+      console.log(error);
+    });
   }
 
   const getVehicleData = () => {
@@ -207,18 +213,36 @@ function Home(props) {
     getDoc(vehicleData).then(docSnap => {
         if (docSnap.exists()) {
           console.log("Document data:", docSnap.data());
+          var location = docSnap.data().location;
+          console.log(location)
+          //lat:59.429096,lng:24.725351
+
+          var battery1 = docSnap.data().batOneSoc;
+          var battery2 = docSnap.data().batTwoSoc;
+          var batterylevel = `L ${battery1}% R ${battery2}%`;
+          var range = docSnap.data().estimatedRange + "-" + docSnap.data().estimatedRangeEco + "km";
+          var odometer = docSnap.data().odometer + "km";
+
+          setBattery(batterylevel);
+          setRange(range);
+          setOdometer(odometer);
+
         } else {
           console.log("No such document!");
         }
     })
+    return getDoc(vehicleData);
   }
+
 
   function getUserDataLag() {
     setTimeout(function () {
-      console.log("heyyyyy")
       getUserData();
     }, 2000);
   }
+
+
+
 
   useEffect(() => {
       let authToken = sessionStorage.getItem('Auth Token')
@@ -235,13 +259,17 @@ function Home(props) {
   getUserDataLag();
 
   return (
-      <div>
-          <h1>Tuul</h1>
+      <div className='container'>
+        <div className='controls'>
           <PairingSwitch label={label} checked={checked} handleChange={handleChangeSwitch} />
           <StartStopToggle title={title} color={color} disabled={disabled} handleChange={handleChangeToggle} />
           <br />
           <br />
           <BasicButton title="Log Out" handleChange={handleLogout} />
+        </div>
+        <div className="info-container">
+          <FolderList battery={battery} range={range} odometer={odometer} />
+        </div>
       </div>
   )
 }

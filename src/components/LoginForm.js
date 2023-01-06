@@ -4,12 +4,12 @@ import TextField from '@mui/material/TextField';
 import Button from './Button';
 
 
-export default function BasicTextFields({title, setEmail, setPassword, handleAction}) {
+export default function BasicTextFields({title1, title2, setEmail, setPassword, handleChange, reRoute}) {
     return (
-        <div>
+        <div className='login'>
             <div className="heading-container">
                 <h3>
-                    {title} Form
+                    {title1} Form
                 </h3>
             </div>
 
@@ -35,8 +35,10 @@ export default function BasicTextFields({title, setEmail, setPassword, handleAct
                     onChange={(e) => setPassword(e.target.value)}
                 />
             </Box>
-
-            <Button title={title} handleAction={handleAction} />
+            <div>
+                <Button title={title1} handleChange={handleChange} />
+                <Button title={title2} handleChange={reRoute} />
+            </div>
         </div>
     );
 }

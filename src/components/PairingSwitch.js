@@ -6,7 +6,7 @@ import FormGroup from '@mui/material/FormGroup';
 
 export default function PairingSwitch({checked, handleChange, label}) {
   return (
-    <FormGroup>
+    <FormGroup className='pairing-div'>
       <FormControlLabel 
         control={
           <Switch 
