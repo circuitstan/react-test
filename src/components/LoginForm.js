@@ -1,10 +1,19 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from './Button';
 
 
 export default function BasicTextFields({title1, title2, setEmail, setPassword, handleChange, reRoute}) {
+
+    const onChangeEmail = useCallback(e => {
+        setEmail(e.target.value);
+    });
+
+    const onChangePass = useCallback(e => {
+        setPassword(e.target.value);
+    });
+
     return (
         <div className='login'>
             <div className="heading-container">
@@ -25,14 +34,14 @@ export default function BasicTextFields({title1, title2, setEmail, setPassword, 
                     id="email" 
                     label="Enter Email" 
                     variant="outlined"
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={onChangeEmail}
                 />
                 <TextField 
                     id="password" 
                     label="Enter Password" 
                     variant="outlined"
                     type="password"
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={onChangePass}
                 />
             </Box>
             <div>

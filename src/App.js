@@ -78,7 +78,9 @@ function App() {
   var infoWindow;
   var marker;
 
+  
   loader.load().then(() => {
+
     map = new window.google.maps.Map(document.getElementById("map"), {
       center: { lat: 59.439299, lng: 24.730721 },
       zoom: 12,
@@ -91,7 +93,7 @@ function App() {
       lat:59.429096,
       lng:24.725351
     }
-    const tuulMarker = "/tuulmarker2.png"
+    const tuulMarker = "tuulmarker2.png"
     scooter.setPosition(scooterPos);
     scooter.setMap(map);
     scooter.setIcon(tuulMarker);
