@@ -29,7 +29,6 @@ function Home(props) {
   }
 
   const handleChangeToggle = (e) => {
-    //getUserDataLag();
     if (title === "Start") {
         setColor("error")
         setTitle("Stop")
@@ -40,13 +39,16 @@ function Home(props) {
   }
 
   const handleChangeSwitch = (e) => {
+    console.log("**********")
+    console.log(checked)
+    console.log("**********")
     if (checked === false) {
       setChecked(e.target.checked);
       setLabel("Unpair Scooter");
       console.log("turn on");
       pairScooter();
+      //check if scooter pairing was successful and turn switch off if unsuccessful
       getUserDataLag();
-      getVehicleData();      
     } else if (checked === true) {
       setChecked(e.target.checked);
       setLabel("Pair Scooter");
@@ -54,8 +56,8 @@ function Home(props) {
       unpairScooter();
       setColor("success");
       setTitle("Start");
+      //check if scooter unpairing was successful and turn switch back on if unsuccessful
       getUserDataLag();
-      getVehicleData();
     }
   };
 
@@ -182,21 +184,23 @@ function Home(props) {
   }
 
   const getUserData = () => {
-
     getAuth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
       const userData = doc(db, "users", "3ce3P4H3K1e7KarRe9fHNwdajQf1");
 
       getDoc(userData).then(docSnap => {
           if (docSnap.exists()) {
-            console.log("Document data:", docSnap.data());
+            console.log("User data:", docSnap.data());
             var vehicle = docSnap.data().activeVehicle;
-            console.log(vehicle);
+            console.log("Vehicle Id: " + vehicle);
             if (vehicle === null) {
               setDisabled(true);
               setChecked(false);
+              setLabel("Pair Scooter");
             } else if (vehicle !== null) {
+              getVehicleData(vehicle);
               setDisabled(false);
               setChecked(true);
+              setLabel("Unpair Scooter");
             }
           } else {
             console.log("No such document!");
@@ -207,12 +211,12 @@ function Home(props) {
     });
   }
 
-  const getVehicleData = () => {
-    const vehicleData = doc(db, "vehicles", "aaaaaaaaaaaaaaaa");
+  const getVehicleData = (vehicleId) => {
+    const vehicleData = doc(db, "vehicles", vehicleId);
 
     getDoc(vehicleData).then(docSnap => {
         if (docSnap.exists()) {
-          console.log("Document data:", docSnap.data());
+          console.log("Vehicle data:", docSnap.data());
           var location = docSnap.data().location;
           console.log(location)
           //lat:59.429096,lng:24.725351
@@ -234,15 +238,10 @@ function Home(props) {
     return getDoc(vehicleData);
   }
 
-
+  //create buffer to wait for response to post request
   function getUserDataLag() {
-    setTimeout(function () {
-      getUserData();
-    }, 2000);
+    setTimeout(getUserData, 2000);
   }
-
-
-
 
   useEffect(() => {
       let authToken = sessionStorage.getItem('Auth Token')
@@ -255,7 +254,6 @@ function Home(props) {
       }
   }, [])
 
-  getVehicleData();
   getUserDataLag();
 
   return (
