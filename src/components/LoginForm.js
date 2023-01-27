@@ -6,13 +6,13 @@ import Button from './Button';
 
 export default function BasicTextFields({title1, title2, setEmail, setPassword, handleChange, reRoute}) {
 
-    const onChangeEmail = useCallback(e => {
+    const onChangeEmail = (e) => {
         setEmail(e.target.value);
-    });
+    };
 
-    const onChangePass = useCallback(e => {
+    const onChangePass = (e) => {
         setPassword(e.target.value);
-    });
+    };
 
     return (
         <div className='login'>
